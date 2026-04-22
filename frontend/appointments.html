@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div class="sidebar-menu">
+                <a href="patient-dashboard.html" class="menu-item"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                <a href="#" class="menu-item active"><i class="fas fa-calendar-check"></i> <span>Appointments</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-file-medical"></i> <span>My Reports</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-prescription"></i> <span>Prescriptions</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2>Book an Appointment</h2>
+                    <p style="color: var(--text-light);">Consult with our expert BAMS doctors.</p>
+                </div>
+            </header>
+
+            <div class="data-card" style="max-width: 800px; margin: 0 auto;">
+                <form id="bookingForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Select Doctor</label>
+                            <select id="doctorSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;" required>
+                                <option value="">Choose a doctor...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Appointment Date</label>
+                            <input type="date" id="date" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Preferred Time Slot</label>
+                            <select id="timeSlot" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;" required>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="11:00 AM">11:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="02:00 PM">02:00 PM</option>
+                                <option value="03:00 PM">03:00 PM</option>
+                                <option value="04:00 PM">04:00 PM</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Consultation Type</label>
+                            <select id="consultationType" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;" required>
+                                <option value="offline">Offline (In-Person)</option>
+                                <option value="online">Online (Video Call)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Appointment Type</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="font-weight: normal;"><input type="radio" name="type" value="New" checked> New Consultation</label>
+                            <label style="font-weight: normal;"><input type="radio" name="type" value="Follow-up"> Follow-up</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Symptoms / Notes (Optional)</label>
+                        <textarea id="notes" style="width: 100%; height: 100px; padding: 12px; border-radius: 8px; border: 1px solid #ddd;" placeholder="Briefly describe your symptoms..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'Patient') window.location.href = 'login.html';
+
+        // Load Doctors
+        async function loadDoctors() {
+            try {
+                const response = await fetch('http://localhost:5000/api/doctors');
+                const data = await response.json();
+                const select = document.getElementById('doctorSelect');
+                data.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc._id;
+                    opt.textContent = `${doc.user.name} - ${doc.specialization}`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const doctorId = document.getElementById('doctorSelect').value;
+            const date = document.getElementById('date').value;
+            const timeSlot = document.getElementById('timeSlot').value;
+            const consultationType = document.getElementById('consultationType').value;
+            const type = document.querySelector('input[name="type"]:checked').value;
+            const notes = document.getElementById('notes').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments/book', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user.token}`
+                    },
+                    body: JSON.stringify({ doctorId, date, timeSlot, type, consultationType, notes })
+                });
+
+                if (response.ok) {
+                    alert('Appointment booked successfully!');
+                    window.location.href = 'patient-dashboard.html';
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Booking failed');
+                }
+            } catch (err) {
+                alert('Server error. Please try again.');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        loadDoctors();
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .consult-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .consult-card {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh;
+            border-radius: 15px;
+            display: flex;
+            overflow: hidden;
+        }
+        .consult-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #eee;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .consult-main {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .prescription-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .prescription-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" onclick="showTab('overview')"><i class="fas fa-th-large"></i> <span>Overview</span></a>
+                <a href="#" class="menu-item" onclick="showTab('patients')"><i class="fas fa-user-injured"></i> <span>My Patients</span></a>
+                <a href="#" class="menu-item" onclick="showTab('availability')"><i class="fas fa-calendar-alt"></i> <span>Availability</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-file-prescription"></i> <span>Templates</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2 id="welcomeName">Welcome, Doctor</h2>
+                    <p style="color: var(--text-light);">Hospital Management System Control Panel</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-img" id="userInitial">D</div>
+                    <div>
+                        <strong id="userName">Dr. Name</strong>
+                        <p id="specialization" style="font-size: 0.8rem; color: var(--text-light);">Specialist</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab: Overview -->
+            <div id="overview" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="queueCount">0</h3>
+                            <p>Today's Queue</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Completed Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <h3>4</h3>
+                            <p>Pending Follow-ups</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Today's Appointment Queue</h3>
+                        <div class="nav-btns">
+                            <button class="btn btn-outline" onclick="fetchQueue()" style="padding: 5px 12px; font-size: 0.8rem;">Refresh</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Patient Name</th>
+                                <th>Symptoms</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueList">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Patients Search -->
+            <div id="patients" class="tab-content">
+                <div class="data-card">
+                    <h3>Patient Database</h3>
+                    <div style="margin: 20px 0; display: flex; gap: 15px;">
+                        <input type="text" placeholder="Search by name, phone or ID..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Last Visit</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientSearchList">
+                            <!-- Dummy Data -->
+                            <tr>
+                                <td>AC-101</td>
+                                <td>Rahul Jadhav</td>
+                                <td>9876543210</td>
+                                <td>15 Apr 2026</td>
+                                <td><button class="btn btn-outline" style="padding: 5px 10px;">View History</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Availability -->
+            <div id="availability" class="tab-content">
+                <div class="data-card">
+                    <h3>Availability Management</h3>
+                    <p style="color: var(--text-light); margin-bottom: 20px;">Set your working hours and leave days.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <div>
+                            <h4>Weekly Schedule</h4>
+                            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                <label style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span>Monday</span>
+                                    <input type="checkbox" checked>
+                                </label>
+                                <label style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span>Tuesday</span>
+                                    <input type="checkbox" checked>
+                                </label>
+                                <label style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <span>Wednesday</span>
+                                    <input type="checkbox" checked>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>Working Hours</h4>
+                            <div style="margin-top: 15px;">
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <label>Start Time</label>
+                                    <input type="time" value="09:00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Time</label>
+                                    <input type="time" value="18:00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                                </div>
+                                <button class="btn btn-primary" style="margin-top: 20px; width: 100%;">Save Schedule</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consultation Modal -->
+    <div id="consultModal" class="consult-modal">
+        <div class="consult-card">
+            <div class="consult-sidebar">
+                <h3 id="consultPatientName">Patient Name</h3>
+                <p id="consultPatientId" style="color: var(--text-light); font-size: 0.8rem;">ID: AC-101</p>
+                
+                <div style="margin-top: 30px;">
+                    <h4>Patient History</h4>
+                    <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-light);">
+                        <p><strong>Last Visit:</strong> 15 Apr 2026</p>
+                        <p><strong>Diagnosis:</strong> Vata Imbalance</p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                        <p><strong>Known Allergies:</strong> None</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-outline" onclick="closeConsult()" style="width: 100%;">Cancel</button>
+                </div>
+            </div>
+            <div class="consult-main">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2>Digital Consultation</h2>
+                    <span class="status-badge status-scheduled">Active Session</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Symptoms & Complaints</label>
+                    <textarea id="diagSymptoms" style="width: 100%; height: 80px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none;" placeholder="Patient reporting..."></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Diagnosis / Clinical Findings</label>
+                    <input type="text" id="diagResult" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" placeholder="e.g. Mild Pitta aggravation">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label>Prescription Generator</label>
+                    <table class="prescription-table">
+                        <thead>
+                            <tr>
+                                <th>Medicine Name</th>
+                                <th>Dosage</th>
+                                <th>M-A-N</th>
+                                <th>Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medList">
+                            <tr>
+                                <td><input type="text" placeholder="Medicine"></td>
+                                <td><input type="text" placeholder="e.g. 1 cap"></td>
+                                <td><input type="text" placeholder="1-0-1"></td>
+                                <td><input type="number" placeholder="7" style="width: 60px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button onclick="addMedRow()" class="btn btn-outline" style="margin-top: 10px; padding: 5px 12px; font-size: 0.8rem;"><i class="fas fa-plus"></i> Add Row</button>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Doctor's Advice & Diet Plan</label>
+                    <textarea id="diagAdvice" style="width: 100%; height: 80px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none;" placeholder="Avoid spicy food..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn btn-primary" onclick="saveConsultation()" style="flex: 1; padding: 15px;">Complete & Generate Prescription</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'Doctor') window.location.href = 'login.html';
+
+        document.getElementById('welcomeName').textContent = `Welcome, ${user.name}`;
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userInitial').textContent = user.name.charAt(0);
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function fetchQueue() {
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments/user', {
+                    headers: { 'Authorization': `Bearer ${user.token}` }
+                });
+                const data = await response.json();
+                const list = document.getElementById('queueList');
+                list.innerHTML = '';
+
+                const today = new Date().toLocaleDateString();
+                const todayAppointments = data.filter(a => new Date(a.date).toLocaleDateString() === today);
+                document.getElementById('queueCount').textContent = todayAppointments.length;
+
+                if (todayAppointments.length === 0) {
+                    list.innerHTML = '<tr><td colspan="6" style="text-align:center;">No patients in queue today.</td></tr>';
+                    return;
+                }
+
+                todayAppointments.forEach(appt => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${appt.tokenNumber || 'NA'}</td>
+                        <td>${appt.patient.user ? appt.patient.user.name : 'Unknown'}</td>
+                        <td style="font-size: 0.85rem; color: var(--text-light);">${appt.notes || 'N/A'}</td>
+                        <td>${appt.type}</td>
+                        <td><span class="status-badge status-scheduled">${appt.status}</span></td>
+                        <td><button class="btn btn-primary" onclick="openConsult('${appt.patient.user.name}', 'AC-101')" style="padding: 5px 12px; font-size: 0.75rem;">Examine</button></td>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        function openConsult(name, id) {
+            document.getElementById('consultPatientName').textContent = name;
+            document.getElementById('consultPatientId').textContent = `ID: ${id}`;
+            document.getElementById('consultModal').style.display = 'flex';
+        }
+
+        function closeConsult() {
+            document.getElementById('consultModal').style.display = 'none';
+        }
+
+        function addMedRow() {
+            const tbody = document.getElementById('medList');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="Medicine"></td>
+                <td><input type="text" placeholder="e.g. 1 cap"></td>
+                <td><input type="text" placeholder="1-0-1"></td>
+                <td><input type="number" placeholder="7" style="width: 60px;"></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function saveConsultation() {
+            alert('Consultation saved successfully! Prescription PDF generated.');
+            closeConsult();
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        fetchQueue();
+    </script>
+</body>
+</html>
