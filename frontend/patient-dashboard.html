@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .upload-zone {
+            border: 2px dashed #ddd;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .upload-zone:hover { border-color: var(--primary-color); background: rgba(45, 90, 39, 0.05); }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" onclick="showTab('overview')"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+                <a href="appointments.html" class="menu-item"><i class="fas fa-calendar-check"></i> <span>Book Appointment</span></a>
+                <a href="#" class="menu-item" onclick="showTab('medical-records')"><i class="fas fa-file-medical"></i> <span>Medical Records</span></a>
+                <a href="#" class="menu-item" onclick="showTab('profile')"><i class="fas fa-user-edit"></i> <span>Profile Settings</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2 id="welcomeName">Welcome, Patient</h2>
+                    <p style="color: var(--text-light);">Manage your health and appointments effortlessly.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-img" id="userInitial">P</div>
+                    <div>
+                        <strong id="userName">Patient Name</strong>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">Aarogya ID: AC-2026</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab: Overview -->
+            <div id="overview" class="tab-content active">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="upcomingCount">0</h3>
+                            <p>Upcoming Appts</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-prescription-bottle-alt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="prescriptionCount">2</h3>
+                            <p>Prescriptions</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold"><i class="fas fa-file-alt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="reportCount">1</h3>
+                            <p>Lab Reports</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <!-- Recent Appointments -->
+                    <div class="data-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>Your Appointments</h3>
+                            <a href="appointments.html" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.8rem;">New Booking</a>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Prescription</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentList">
+                                <!-- JS populated -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div>
+                        <!-- Follow up reminder -->
+                        <div class="data-card" style="margin-bottom: 30px; border-left: 5px solid var(--secondary-color);">
+                            <h3>Follow-up Reminders</h3>
+                            <div style="margin-top: 15px;">
+                                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                                    <div style="background: rgba(197, 160, 89, 0.1); color: var(--secondary-color); padding: 10px; border-radius: 8px;"><i class="fas fa-bell"></i></div>
+                                    <div>
+                                        <p style="font-weight: 600; font-size: 0.9rem;">Dr. Rohan Patil</p>
+                                        <p style="font-size: 0.8rem; color: var(--text-light);">25 Apr 2026 at 10:30 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Support -->
+                        <div class="data-card" style="background: #25d366; color: white;">
+                            <h3 style="color: white;"><i class="fab fa-whatsapp"></i> WhatsApp Care</h3>
+                            <p style="margin: 10px 0; font-size: 0.9rem;">Direct access to our 24/7 care team.</p>
+                            <a href="https://wa.me/919876543210" target="_blank" class="btn" style="background: white; color: #25d366; width: 100%; text-align: center; padding: 10px;">Chat with Us</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Medical Records -->
+            <div id="medical-records" class="tab-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="data-card">
+                        <h3>My Reports</h3>
+                        <div class="upload-zone" style="margin-top: 20px;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ddd; margin-bottom: 10px;"></i>
+                            <p>Drag & Drop reports or <strong>Browse</strong></p>
+                            <span style="font-size: 0.75rem; color: var(--text-light);">PDF, JPG or PNG (Max 5MB)</span>
+                        </div>
+                        <div style="margin-top: 25px;">
+                            <h4>Recent Uploads</h4>
+                            <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <span><i class="far fa-file-pdf" style="color: var(--danger); margin-right: 10px;"></i> Blood_Report_Apr26.pdf</span>
+                                <a href="#" style="color: var(--primary-color);"><i class="fas fa-download"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-card">
+                        <h3>Digital Prescriptions</h3>
+                        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <div style="padding: 15px; border: 1px solid #eee; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p style="font-weight: 600;">Kayachikitsa Consultation</p>
+                                    <p style="font-size: 0.8rem; color: var(--text-light);">Dr. Rohan Patil • 15 Apr 2026</p>
+                                </div>
+                                <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.8rem;"><i class="fas fa-download"></i> PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Profile -->
+            <div id="profile" class="tab-content">
+                <div class="data-card" style="max-width: 600px;">
+                    <h3>Profile Settings</h3>
+                    <form style="margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="profName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="text" id="profPhone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label>Address</label>
+                            <textarea id="profAddress" style="width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'Patient') window.location.href = 'login.html';
+
+        document.getElementById('welcomeName').textContent = `Welcome, ${user.name}`;
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userInitial').textContent = user.name.charAt(0);
+        document.getElementById('profName').value = user.name;
+        document.getElementById('profPhone').value = user.phone || '';
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function fetchAppointments() {
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments/user', {
+                    headers: { 'Authorization': `Bearer ${user.token}` }
+                });
+                const data = await response.json();
+                const list = document.getElementById('appointmentList');
+                list.innerHTML = '';
+
+                document.getElementById('upcomingCount').textContent = data.filter(a => a.status === 'Scheduled').length;
+
+                if (data.length === 0) {
+                    list.innerHTML = '<tr><td colspan="5" style="text-align:center;">No appointments found.</td></tr>';
+                    return;
+                }
+
+                data.forEach(appt => {
+                    const row = document.createElement('tr');
+                    const date = new Date(appt.date).toLocaleDateString();
+                    row.innerHTML = `
+                        <td>${appt.doctor.user ? appt.doctor.user.name : 'Doctor'}</td>
+                        <td>${date}</td>
+                        <td>${appt.timeSlot}</td>
+                        <td><span class="status-badge status-${appt.status.toLowerCase()}">${appt.status}</span></td>
+                        <td>${appt.status === 'Completed' ? '<a href="#" style="color: var(--primary-color);"><i class="fas fa-file-pdf"></i> Download</a>' : '-'}</td>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        fetchAppointments();
+    </script>
+</body>
+</html>

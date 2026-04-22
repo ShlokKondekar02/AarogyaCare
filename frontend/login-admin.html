@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2c3e50;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+        .error-msg {
+            background: #ffe6e6;
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header" style="margin-bottom: 30px;">
+                <i class="fas fa-user-shield" style="font-size: 3rem; color: #2c3e50; margin-bottom: 15px;"></i>
+                <h2>Admin Control</h2>
+                <p>System Management & Hospital Control Panel</p>
+            </div>
+
+            <div id="error-msg" class="error-msg"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Admin ID / Email</label>
+                    <input type="text" id="email" placeholder="admin@aarogya.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Security Key (Password)</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; background: #2c3e50; color: white;">Access Dashboard</button>
+            </form>
+
+            <div class="auth-footer" style="margin-top: 25px;">
+                <a href="login.html" style="font-size: 0.9rem;"><i class="fas fa-arrow-left"></i> Change Role</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.role !== 'Admin') {
+                        errorMsg.textContent = 'Access denied. Administrator accounts only.';
+                        errorMsg.style.display = 'block';
+                        return;
+                    }
+                    localStorage.setItem('user', JSON.stringify(data));
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    errorMsg.textContent = data.message || 'Login failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Server error. Please try later.';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

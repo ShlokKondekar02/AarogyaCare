@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active"><i class="fas fa-chart-line"></i> <span>Analytics</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-user-md"></i> <span>Manage Doctors</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-user-injured"></i> <span>Manage Patients</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-boxes"></i> <span>Inventory</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2>Hospital Administrator</h2>
+                    <p style="color: var(--text-light);">Real-time hospital performance overview.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-img">A</div>
+                    <div>
+                        <strong>Rajesh Kulkarni</strong>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">Chief Administrator</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-user-injured"></i></div>
+                    <div class="stat-info">
+                        <h3>1,280</h3>
+                        <p>Total Patients</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <h3>42</h3>
+                        <p>Today's Appts</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gold"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="stat-info">
+                        <h3>₹8.5L</h3>
+                        <p>Monthly Revenue</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(155, 89, 182, 0.1); color: #9b59b6;"><i class="fas fa-user-md"></i></div>
+                    <div class="stat-info">
+                        <h3>15</h3>
+                        <p>Active Doctors</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px;">
+                <div class="data-card">
+                    <h3>Appointment Trends (Monthly)</h3>
+                    <canvas id="appointmentChart" height="150"></canvas>
+                </div>
+                <div class="data-card">
+                    <h3>Department Traffic</h3>
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div class="data-card">
+                    <h3>Doctor Performance</h3>
+                    <canvas id="performanceChart" height="200"></canvas>
+                </div>
+                <div class="data-card">
+                    <h3>Revenue Breakdown</h3>
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Appointment Trend Chart
+        const ctxAppt = document.getElementById('appointmentChart').getContext('2d');
+        new Chart(ctxAppt, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Appointments',
+                    data: [65, 59, 80, 81, 56, 95],
+                    borderColor: '#2d5a27',
+                    backgroundColor: 'rgba(45, 90, 39, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Dept Traffic Chart
+        const ctxDept = document.getElementById('deptChart').getContext('2d');
+        new Chart(ctxDept, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kayachikitsa', 'Panchakarma', 'Shalya', 'Shalakya'],
+                datasets: [{
+                    data: [40, 30, 15, 15],
+                    backgroundColor: ['#2d5a27', '#c5a059', '#2c3e50', '#27ae60']
+                }]
+            }
+        });
+
+        // Doctor Performance
+        const ctxPerf = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctxPerf, {
+            type: 'bar',
+            data: {
+                labels: ['Dr. Patil', 'Dr. Sneha', 'Dr. Amit', 'Dr. Priya'],
+                datasets: [{
+                    label: 'Patients Handled',
+                    data: [120, 150, 90, 110],
+                    backgroundColor: '#c5a059'
+                }]
+            }
+        });
+
+        // Revenue Chart
+        const ctxRev = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctxRev, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: [150000, 220000, 180000, 300000],
+                    backgroundColor: '#2d5a27'
+                }]
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
