@@ -1,4 +1,10 @@
 {
+  "name": "aarogyacare-monorepo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "cd backend && npm install"
+  },
   "dependencies": {
     "dotenv": "^17.4.2"
   }
