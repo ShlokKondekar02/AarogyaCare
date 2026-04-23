@@ -28,8 +28,27 @@
                 <a href="login.html" class="btn btn-outline" style="margin-right: 10px;">Login</a>
                 <a href="register.html" class="btn btn-primary">Sign Up</a>
             </div>
+
+            <!-- Hamburger Menu Button -->
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Nav Overlay -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html" onclick="toggleMenu()">Home</a>
+        <a href="#about" onclick="toggleMenu()">About</a>
+        <a href="#services" onclick="toggleMenu()">Treatments</a>
+        <a href="#doctors" onclick="toggleMenu()">Our Doctors</a>
+        <a href="#contact" onclick="toggleMenu()">Contact</a>
+        <hr style="width: 50%; border: none; border-top: 1px solid #eee; margin: 10px 0;">
+        <a href="login.html" class="btn btn-primary" style="width: 100%; text-align: center;">Login</a>
+        <a href="register.html" class="btn btn-outline" style="width: 100%; text-align: center;">Sign Up</a>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -275,6 +294,18 @@
             duration: 1000,
             once: true
         });
+    </script>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        hamburger.addEventListener('click', toggleMenu);
     </script>
 </body>
 </html>
