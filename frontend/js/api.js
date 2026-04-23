@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://aarogyacare-2-z3n5.onrender.com/api';
 
 const api = {
     async request(endpoint, options = {}) {

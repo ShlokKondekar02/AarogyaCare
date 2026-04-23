@@ -35,7 +35,7 @@ const bookAppointment = async (req, res) => {
       consultationType,
       tokenNumber,
       notes,
-      status: 'Pending',
+      status: 'Scheduled',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -58,9 +58,14 @@ const getUserAppointments = async (req, res) => {
       const patientSnapshot = await db.collection('patients').where('user', '==', req.user.id).limit(1).get();
       if (!patientSnapshot.empty) {
         const patientId = patientSnapshot.docs[0].id;
-        const appSnapshot = await db.collection('appointments').where('patient', '==', patientId).orderBy('date', 'asc').get();
+        const appSnapshot = await db.collection('appointments').where('patient', '==', patientId).get();
         
-        appointments = await Promise.all(appSnapshot.docs.map(async (doc) => {
+        // Sort in memory to avoid composite index requirement
+        const sortedDocs = appSnapshot.docs.sort((a, b) => {
+          return (a.data().date || '').localeCompare(b.data().date || '');
+        });
+
+        appointments = await Promise.all(sortedDocs.map(async (doc) => {
           const data = doc.data();
           // Populate doctor and doctor's user info
           const doctorDoc = await db.collection('doctors').doc(data.doctor).get();
@@ -88,9 +93,14 @@ const getUserAppointments = async (req, res) => {
       const doctorSnapshot = await db.collection('doctors').where('user', '==', req.user.id).limit(1).get();
       if (!doctorSnapshot.empty) {
         const doctorId = doctorSnapshot.docs[0].id;
-        const appSnapshot = await db.collection('appointments').where('doctor', '==', doctorId).orderBy('date', 'asc').get();
+        const appSnapshot = await db.collection('appointments').where('doctor', '==', doctorId).get();
         
-        appointments = await Promise.all(appSnapshot.docs.map(async (doc) => {
+        // Sort in memory to avoid composite index requirement
+        const sortedDocs = appSnapshot.docs.sort((a, b) => {
+          return (a.data().date || '').localeCompare(b.data().date || '');
+        });
+
+        appointments = await Promise.all(sortedDocs.map(async (doc) => {
           const data = doc.data();
           // Populate patient and patient's user info
           const patientDoc = await db.collection('patients').doc(data.patient).get();
