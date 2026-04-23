@@ -40,6 +40,7 @@
 
         <!-- Main Content -->
         <div class="main-content">
+            <button class="mobile-toggle" id="menuToggle" style="display: none;"><i class="fas fa-bars"></i></button>
             <header class="dash-header">
                 <div>
                     <h2 id="welcomeName">Welcome, Patient</h2>
@@ -243,6 +244,24 @@
         });
 
         fetchAppointments();
+
+        // Mobile Menu Toggle Logic
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (e) => {
+                if (sidebar.classList.contains('active') && !sidebar.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
     </script>
 </body>
 </html>
