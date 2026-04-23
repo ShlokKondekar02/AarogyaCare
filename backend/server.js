@@ -24,7 +24,7 @@ const app = express();
 app.use(express.json()); 
 
 app.use(cors({
-  origin: 'https://aarogyacare-2-z3n5.onrender.com/',
+  origin: 'https://aarogyacare.netlify.app',
   credentials: true
 })); 
 
