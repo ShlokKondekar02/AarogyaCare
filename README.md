@@ -241,11 +241,11 @@ The application includes pre-configured demo credentials with one-click quick-fi
 ## 👨‍💻 Project Maintainer & Author
 
 * **Shlok Kondekar**  
-  * GitHub: [@ShlokKondekar02](https://github.com/ShlokKondekar02)  
-  * Email: `kshlok2106@gmail.com`  
+  * GitHub: [@ShlokKondekar02](https://github.com/ShlokKondekar02)   
   * Repository: [AarogyaCare](https://github.com/ShlokKondekar02/AarogyaCare)
 
 ---
 
 ## 📄 License
 This project is licensed under the **ISC License**. Academic and educational use is welcomed with proper attribution.
+
