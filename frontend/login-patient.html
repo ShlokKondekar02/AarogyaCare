@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal Notice | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f7f4;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div style="width: 70px; height: 70px; background: rgba(45, 90, 39, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <i class="fas fa-hospital-alt" style="font-size: 2rem; color: var(--primary-color);"></i>
+            </div>
+            <h2>AarogyaCare BAMS Clinical Practice System</h2>
+            <div style="background: #eef6ed; border: 1px solid #cce5ca; padding: 16px; border-radius: 10px; margin: 20px 0; text-align: left; font-size: 0.9rem; line-height: 1.5; color: #234d1e;">
+                <strong><i class="fas fa-info-circle"></i> Clinical Hospital System Notice:</strong><br>
+                In this hospital deployment, patient records, OPD admissions, and therapy scheduling are managed directly by **BAMS Doctors** and **Hospital Reception Staff**.
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+                <a href="login-doctor.html" class="btn btn-primary" style="padding: 12px; font-weight: 600;">
+                    <i class="fas fa-stethoscope"></i> Go to BAMS Doctor Portal
+                </a>
+                <a href="login-admin.html" class="btn btn-outline" style="padding: 12px;">
+                    <i class="fas fa-clipboard-list"></i> Go to Reception & Admin Desk
+                </a>
+                <a href="index.html" style="font-size: 0.85rem; color: var(--text-light); margin-top: 10px;">
+                    <i class="fas fa-arrow-left"></i> Return to Homepage
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

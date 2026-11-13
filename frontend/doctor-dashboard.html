@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAMS Doctor Consultation Desk | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --ayur-green: #2d5a27;
+            --ayur-gold: #c29d38;
+            --ayur-light: #f4f8f3;
+        }
+        .bams-badge {
+            background: #e4f2e1;
+            color: #24521f;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .dosha-tag {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .dosha-vata { background: #e3f2fd; color: #1565c0; }
+        .dosha-pitta { background: #fff3e0; color: #e65100; }
+        .dosha-kapha { background: #e8f5e9; color: #2e7d32; }
+
+        /* Consultation Modal */
+        .consult-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2500;
+            align-items: center; justify-content: center;
+        }
+        .consult-card {
+            background: white;
+            width: 95%; max-width: 1100px;
+            height: 92vh;
+            border-radius: 16px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+        }
+        .consult-sidebar {
+            width: 320px;
+            background: #f8faf8;
+            border-right: 1px solid #e1ebe0;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .consult-main {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #ffffff;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            color: var(--ayur-green);
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2ece0;
+        }
+        .pariksha-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .pariksha-card {
+            background: #fafdfa;
+            border: 1px solid #e3ede1;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .pariksha-card label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: #1e3a1a;
+            margin-bottom: 6px;
+        }
+        .pariksha-card select, .pariksha-card input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccd8ca;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            background: white;
+        }
+        .prescription-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .prescription-table th {
+            background: #eef5ed;
+            color: #24521f;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            text-align: left;
+            border: 1px solid #dce8db;
+        }
+        .prescription-table td {
+            padding: 6px;
+            border: 1px solid #e4eee3;
+        }
+        .prescription-table input, .prescription-table select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #d1ded0;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            box-sizing: border-box;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .progress-bar-container {
+            width: 100%;
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-bar-fill {
+            background: var(--ayur-green);
+            height: 100%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div style="padding: 0 15px 15px 15px;">
+                <span class="bams-badge"><i class="fas fa-certificate"></i> BAMS Clinical Portal</span>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" onclick="showTab('overview', this)"><i class="fas fa-user-clock"></i> <span>OPD Queue</span></a>
+                <a href="#" class="menu-item" onclick="showTab('patients', this)"><i class="fas fa-id-card-alt"></i> <span>Patient Database</span></a>
+                <a href="#" class="menu-item" onclick="showTab('panchakarma', this)"><i class="fas fa-spa"></i> <span>Panchakarma Unit</span></a>
+                <a href="#" class="menu-item" onclick="showTab('prakriti-tool', this)"><i class="fas fa-dna"></i> <span>Prakriti Analyzer</span></a>
+                <a href="#" class="menu-item" onclick="showTab('formulary', this)"><i class="fas fa-mortar-pestle"></i> <span>Ayurvedic Formulary</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content Panel -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2 id="welcomeName">Consultation Desk</h2>
+                    <p style="color: var(--text-light); font-size: 0.9rem;">Ayurvedic Clinical Diagnostics, Ashtavidha Pariksha & Therapeutics</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-img" id="userInitial">V</div>
+                    <div>
+                        <strong id="userName">Dr. Rohan Patil</strong>
+                        <p id="specialization" style="font-size: 0.8rem; color: var(--text-light);">BAMS, MD (Kayachikitsa)</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: OPD Queue & Overview -->
+            <div id="overview" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statWaiting">0</h3>
+                            <p>Waiting in Queue</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statCompleted">0</h3>
+                            <p>Completed Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold"><i class="fas fa-spa"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statPanchakarma">0</h3>
+                            <p>Active Panchakarma</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="color: #2c3e50;"><i class="fas fa-clipboard-list" style="color: var(--primary-color);"></i> Today's OPD Token Queue</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 2px;">Examine patients, record Ashtavidha Pariksha, and issue prescriptions</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="loadQueue()" style="padding: 6px 14px; font-size: 0.82rem;"><i class="fas fa-sync"></i> Refresh Queue</button>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Patient ID</th>
+                                <th>Patient Details</th>
+                                <th>Prakriti / Agni</th>
+                                <th>Chief Complaints (Pradhana Vedana)</th>
+                                <th>Status</th>
+                                <th>Clinical Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueList">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: Patient Database -->
+            <div id="patients" class="tab-content">
+                <div class="data-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3><i class="fas fa-users" style="color: var(--primary-color);"></i> Patient Clinical Database</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-light);">Comprehensive medical history, dosha balance, and visit logs</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewPatientModal()" style="font-size: 0.85rem;"><i class="fas fa-user-plus"></i> Register Walk-in Patient</button>
+                    </div>
+
+                    <div style="margin: 15px 0; display: flex; gap: 15px;">
+                        <input type="text" id="patientSearchInput" onkeyup="filterPatients()" placeholder="Search patient by Name, Phone, or ID..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age / Gender</th>
+                                <th>Phone</th>
+                                <th>Prakriti</th>
+                                <th>Agni & Koshtha</th>
+                                <th>Last Visit</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientSearchList">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: Panchakarma Unit -->
+            <div id="panchakarma" class="tab-content">
+                <div class="data-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3><i class="fas fa-spa" style="color: var(--primary-color);"></i> Panchakarma Therapy Unit</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-light);">Multi-day therapy cycles, medicated oils, and session progress logs</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openNewPanchakarmaModal()" style="font-size: 0.85rem;"><i class="fas fa-plus-circle"></i> New Therapy Order</button>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Therapy ID</th>
+                                <th>Patient Name</th>
+                                <th>Therapy Protocol</th>
+                                <th>Medicated Oil / Kwatha</th>
+                                <th>Course Progress</th>
+                                <th>Therapist</th>
+                                <th>Status</th>
+                                <th>Log Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="panchakarmaTable">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: Prakriti Diagnostic Tool -->
+            <div id="prakriti-tool" class="tab-content">
+                <div class="data-card">
+                    <h3><i class="fas fa-dna" style="color: var(--primary-color);"></i> Clinical Prakriti Diagnostic Tool (Tridosha Analyzer)</h3>
+                    <p style="color: var(--text-light); margin-bottom: 25px; font-size: 0.9rem;">
+                        Analyze physical, physiological, and psychological parameters to determine the patient's constitution (Doshic Dominance).
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="pariksha-card">
+                            <label>1. Body Frame & Build (Sharira Aakriti)</label>
+                            <select id="prkFrame" onchange="calcPrakriti()">
+                                <option value="vata">Thin, lean, prominent joints/veins (Krisha - Vata)</option>
+                                <option value="pitta">Medium build, good muscle tone (Madhyama - Pitta)</option>
+                                <option value="kapha">Broad, solid, heavy bones, tends to gain weight (Sthula - Kapha)</option>
+                            </select>
+                        </div>
+
+                        <div class="pariksha-card">
+                            <label>2. Skin Texture & Complexion (Twak)</label>
+                            <select id="prkSkin" onchange="calcPrakriti()">
+                                <option value="vata">Dry, rough, cool to touch, cracks easily (Ruksha - Vata)</option>
+                                <option value="pitta">Warm, reddish/pinkish, moles, prone to acne/sweat (Ushna - Pitta)</option>
+                                <option value="kapha">Thick, soft, oily, cool, fair/radiant (Snigdha - Kapha)</option>
+                            </select>
+                        </div>
+
+                        <div class="pariksha-card">
+                            <label>3. Appetite & Digestion (Agni & Ahara)</label>
+                            <select id="prkDigestion" onchange="calcPrakriti()">
+                                <option value="vata">Irregular appetite, prone to bloating/gas (Vishamagni - Vata)</option>
+                                <option value="pitta">Strong appetite, can't skip meals, acidic burns (Tikshnagni - Pitta)</option>
+                                <option value="kapha">Slow digestion, steady moderate hunger (Mandagni - Kapha)</option>
+                            </select>
+                        </div>
+
+                        <div class="pariksha-card">
+                            <label>4. Sleep Pattern & Mind (Nidra & Manas)</label>
+                            <select id="prkSleep" onchange="calcPrakriti()">
+                                <option value="vata">Light, interrupted sleep, active restless mind (Alpa Nidra - Vata)</option>
+                                <option value="pitta">Moderate sound sleep, intense dreaming, sharp mind (Pitta)</option>
+                                <option value="kapha">Heavy, deep sleep, calm, slow to anger (Gabhira Nidra - Kapha)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 25px; background: #f0f7ef; padding: 20px; border-radius: 10px; border: 1px solid #d7ebd5; text-align: center;">
+                        <h4 style="color: #24521f; margin-bottom: 5px;">Computed Dominant Prakriti:</h4>
+                        <div id="prakritiResultBadge" style="font-size: 1.3rem; font-weight: 800; color: #2d5a27; margin: 10px 0;">
+                            Vata-Pitta Prakriti
+                        </div>
+                        <p id="prakritiAdvice" style="font-size: 0.88rem; color: #555; max-width: 650px; margin: 0 auto;">
+                            Dominance of Vata and Pitta indicates susceptibility to nervous exhaustion, acidity, joint dryness, and digestive irregularities. Prioritize warm, unctuous diet (Snigdha Ahara) and mild snehana.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Ayurvedic Formulary -->
+            <div id="formulary" class="tab-content">
+                <div class="data-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3><i class="fas fa-mortar-pestle" style="color: var(--primary-color);"></i> Classical Ayurvedic Formulary</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-light);">Reference library of standard formulations, dosages, Kala, and Anupana</p>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Formulation Name</th>
+                                <th>Dosage Form</th>
+                                <th>Standard Matra (Dose)</th>
+                                <th>Aushadha Sevana Kala (Timing)</th>
+                                <th>Recommended Anupana</th>
+                            </tr>
+                        </thead>
+                        <tbody id="formularyTable">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DIGITAL CONSULTATION & ASHTAVIDHA PARIKSHA MODAL -->
+    <div id="consultModal" class="consult-modal">
+        <div class="consult-card">
+            <!-- Sidebar with Patient Info -->
+            <div class="consult-sidebar">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 60px; height: 60px; background: #e3efe0; color: #2d5a27; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 10px;">
+                        <i class="fas fa-user-injured"></i>
+                    </div>
+                    <h3 id="modalPatientName" style="color: #2c3e50; margin-bottom: 2px;">Patient Name</h3>
+                    <span id="modalPatientId" style="font-size: 0.82rem; color: var(--text-light);">ID: AC-101</span>
+                </div>
+
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e1ece0; font-size: 0.85rem; margin-bottom: 15px;">
+                    <p style="margin: 4px 0;"><strong>Age/Gender:</strong> <span id="modalPatientAge">34 yrs / Male</span></p>
+                    <p style="margin: 4px 0;"><strong>Prakriti:</strong> <span id="modalPatientPrakriti" class="dosha-tag dosha-vata">Vata-Pitta</span></p>
+                    <p style="margin: 4px 0;"><strong>Agni:</strong> <span id="modalPatientAgni">Vishamagni</span></p>
+                    <p style="margin: 4px 0;"><strong>Phone:</strong> <span id="modalPatientPhone">9876543210</span></p>
+                </div>
+
+                <div style="background: #fdfaf3; padding: 12px; border-radius: 8px; border: 1px solid #fae8cc; font-size: 0.82rem; margin-bottom: 20px;">
+                    <strong style="color: #b25800;"><i class="fas fa-exclamation-triangle"></i> Reported Complaints:</strong>
+                    <p id="modalPatientComplaints" style="margin: 6px 0 0 0; color: #555; line-height: 1.4;">Joint stiffness and lower back pain.</p>
+                </div>
+
+                <button class="btn btn-outline" onclick="closeConsult()" style="width: 100%;"><i class="fas fa-times"></i> Close Examination</button>
+            </div>
+
+            <!-- Main Consultation Form -->
+            <div class="consult-main">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="color: #2d5a27; margin: 0; font-size: 1.4rem;">Ayurvedic Clinical Examination & Rx</h2>
+                        <span style="font-size: 0.82rem; color: var(--text-light);">Ashtavidha Pariksha, Panchakarma Protocol & Aushadhi Yojna</span>
+                    </div>
+                    <span class="bams-badge"><i class="fas fa-circle" style="font-size: 0.6rem; color: #27ae60;"></i> Live Session</span>
+                </div>
+
+                <!-- 1. Ashtavidha Pariksha Form -->
+                <div class="section-header">
+                    <i class="fas fa-heartbeat"></i> 1. Ashtavidha Pariksha (Eight-Fold Diagnosis)
+                </div>
+                <div class="pariksha-grid">
+                    <div class="pariksha-card">
+                        <label>1. Nadi (Pulse Gati)</label>
+                        <select id="p_nadi">
+                            <option value="Sarpa Gati (Vata dominant - Curved/Fast)">Sarpa Gati (Vata - Rapid/Irregular)</option>
+                            <option value="Manduka Gati (Pitta dominant - Jumping/Hot)">Manduka Gati (Pitta - Jumping/Intense)</option>
+                            <option value="Hamsa Gati (Kapha dominant - Slow/Steady)">Hamsa Gati (Kapha - Slow/Deep)</option>
+                            <option value="Vata-Pitta Mishra">Vata-Pitta Mishra</option>
+                            <option value="Sannipataja">Sannipataja (Tridosha)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>2. Mutra (Urine)</label>
+                        <select id="p_mutra">
+                            <option value="Samyak (Pale yellow, Clear)">Samyak (Normal/Pale)</option>
+                            <option value="Peeta (Dark yellow/Burning - Pitta)">Peeta (Dark yellow/Acidic - Pitta)</option>
+                            <option value="Avila (Turbid/White - Kapha)">Avila (Turbid/White - Kapha)</option>
+                            <option value="Aruna (Reddish/Astringent - Vata)">Aruna (Reddish - Vata)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>3. Mala (Bowel / Stool)</label>
+                        <select id="p_mala">
+                            <option value="Vibandha (Dry/Hard - Vata)">Vibandha (Constipated/Hard - Vata)</option>
+                            <option value="Atisara (Loose/Frequent - Pitta)">Atisara (Loose/Frequent - Pitta)</option>
+                            <option value="Saama (Mucus laden/Heavy)">Saama (Ama/Mucus present)</option>
+                            <option value="Nirama (Clear/Normal)">Nirama (Normal/Clean)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>4. Jihva (Tongue Examination)</label>
+                        <select id="p_jihva">
+                            <option value="Saama (Thick white coating - Ama)">Saama (White coating - High Ama)</option>
+                            <option value="Nirama (Pink & Clear)">Nirama (Pink/Clean)</option>
+                            <option value="Ruksha & Sphatita (Dry/Cracked - Vata)">Ruksha & Sphatita (Dry/Cracked - Vata)</option>
+                            <option value="Rakta (Reddish/Inflamed - Pitta)">Rakta (Red/Inflamed - Pitta)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>5. Shabda (Voice & Speech)</label>
+                        <select id="p_shabda">
+                            <option value="Spashta (Clear & Normal)">Spashta (Clear & Balanced)</option>
+                            <option value="Gambhira (Heavy/Deep - Kapha)">Gambhira (Heavy/Low - Kapha)</option>
+                            <option value="Kshama / Karkasha (Feeble/Hoarse - Vata)">Kshama/Hoarse (Vata)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>6. Sparsha (Touch & Temperature)</label>
+                        <select id="p_sparsha">
+                            <option value="Ushna (Warm/Perspiring - Pitta)">Ushna (Warm - Pitta)</option>
+                            <option value="Sheeta & Ruksha (Cold & Dry - Vata)">Sheeta & Ruksha (Cold/Dry - Vata)</option>
+                            <option value="Snigdha & Sheeta (Oily/Cold - Kapha)">Snigdha & Sheeta (Oily/Cold - Kapha)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>7. Druk (Eyes / Sclera)</label>
+                        <select id="p_druk">
+                            <option value="Shweta (Clear/Normal)">Shweta (Clear/Normal)</option>
+                            <option value="Peeta (Yellowish tinge - Pitta)">Peeta (Yellowish - Pitta)</option>
+                            <option value="Ruksha (Dry/Lusterless - Vata)">Ruksha (Dry - Vata)</option>
+                        </select>
+                    </div>
+
+                    <div class="pariksha-card">
+                        <label>8. Aakriti (General Physique)</label>
+                        <select id="p_aakriti">
+                            <option value="Madhyama (Medium body frame)">Madhyama (Medium Frame)</option>
+                            <option value="Krisha (Lean/Slender - Vata)">Krisha (Lean - Vata)</option>
+                            <option value="Sthula (Heavy/Stout - Kapha)">Sthula (Heavy/Broad - Kapha)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2. Clinical Diagnosis & Rogi Pariksha -->
+                <div class="section-header">
+                    <i class="fas fa-stethoscope"></i> 2. Clinical Diagnosis (Vyadhi Nidana & Samprapti)
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 0.82rem; font-weight: 600;">Primary Ayurvedic Diagnosis</label>
+                        <input type="text" id="consultDiagnosis" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" value="Sandhivata with mild Vata Prakopa & Ama">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.82rem; font-weight: 600;">Agni Assessment</label>
+                        <select id="consultAgni" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                            <option value="Vishamagni">Vishamagni (Irregular)</option>
+                            <option value="Mandagni">Mandagni (Sluggish/Low)</option>
+                            <option value="Tikshnagni">Tikshnagni (Intense/Acidic)</option>
+                            <option value="Samagni">Samagni (Balanced)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3. Panchakarma Therapy Order -->
+                <div class="section-header">
+                    <i class="fas fa-spa"></i> 3. Panchakarma Therapy Protocol Order (Optional)
+                </div>
+                <div style="background: #f7faf7; border: 1px solid #e1ece0; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <label style="font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="prescribePanchakarmaToggle" onchange="togglePanchakarmaForm()"> Prescribe Panchakarma Clinical Procedure for this Patient
+                    </label>
+
+                    <div id="panchakarmaFormArea" style="display: none; margin-top: 15px; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 600;">Therapy Procedure</label>
+                            <select id="pk_therapy" style="width: 100%; padding: 8px; border: 1px solid #ccd8ca; border-radius: 6px;">
+                                <option value="Janu Basti & Patra Pinda Swedana">Janu Basti & Patra Pinda Swedana</option>
+                                <option value="Kati Basti with Matra Basti">Kati Basti with Matra Basti</option>
+                                <option value="Shirodhara with Medicated Taila">Shirodhara (Tailadhara)</option>
+                                <option value="Takradhara (Buttermilk Dhara)">Takradhara</option>
+                                <option value="Abhyanga & Bashpa Swedana">Sarvanga Abhyanga & Bashpa Swedana</option>
+                                <option value="Nasya Karma">Nasya Karma</option>
+                                <option value="Virechana Karma">Virechana Karma</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 600;">Medicated Oil / Kwatha</label>
+                            <input type="text" id="pk_oil" value="Mahanarayan Taila & Sahacharadi" style="width: 100%; padding: 8px; border: 1px solid #ccd8ca; border-radius: 6px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 600;">Course Duration</label>
+                            <select id="pk_days" style="width: 100%; padding: 8px; border: 1px solid #ccd8ca; border-radius: 6px;">
+                                <option value="7">7 Days Protocol</option>
+                                <option value="14">14 Days Protocol</option>
+                                <option value="21">21 Days Protocol</option>
+                                <option value="3">3 Days (Mini)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Ayurvedic Prescription Table -->
+                <div class="section-header">
+                    <i class="fas fa-file-prescription"></i> 4. ℞ Aushadhi Yojna (Ayurvedic Medications)
+                </div>
+                <table class="prescription-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Medicine Name</th>
+                            <th style="width: 15%;">Form</th>
+                            <th style="width: 15%;">Matra (Dose)</th>
+                            <th style="width: 20%;">Kala (Timing)</th>
+                            <th style="width: 20%;">Anupana (Carrier)</th>
+                            <th style="width: 80px;">Days</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="medList">
+                        <!-- Populated with rows -->
+                    </tbody>
+                </table>
+                <button onclick="addMedRow()" class="btn btn-outline" style="margin-top: 10px; padding: 6px 12px; font-size: 0.82rem;"><i class="fas fa-plus"></i> Add Formulation Row</button>
+
+                <!-- 5. Pathya & Apathya Diet -->
+                <div class="section-header" style="margin-top: 25px;">
+                    <i class="fas fa-utensils"></i> 5. Pathya & Apathya (Diet & Lifestyle Guidance)
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div>
+                        <label style="font-size: 0.82rem; font-weight: 600; color: #2d5a27;">✅ Pathya (Favored Foods & Lifestyle)</label>
+                        <textarea id="consultPathya" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ccd8ca; border-radius: 6px; font-size: 0.82rem; box-sizing: border-box;">Warm fresh meals, Cow's Ghee (1 tsp daily), Mung dal soup, warm water, proper joint rest.</textarea>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.82rem; font-weight: 600; color: #c0392b;">❌ Apathya (Strictly Avoid)</label>
+                        <textarea id="consultApathya" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #f2c7c7; border-radius: 6px; font-size: 0.82rem; box-sizing: border-box;">Cold drinks, refrigerated foods, dry fermented snacks, daytime sleeping, direct cold breeze/AC.</textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn btn-primary" onclick="saveAndPrintConsultation()" style="flex: 2; padding: 14px; font-size: 0.95rem; font-weight: 700;">
+                        <i class="fas fa-print"></i> Complete Consultation & Print Prescription PDF
+                    </button>
+                    <button class="btn btn-outline" onclick="saveConsultationOnly()" style="flex: 1; padding: 14px; font-size: 0.95rem;">
+                        <i class="fas fa-save"></i> Save Record Only
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW WALK-IN PATIENT MODAL -->
+    <div id="newPatientModal" class="consult-modal">
+        <div style="background: white; width: 90%; max-width: 520px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <h3 style="color: #2d5a27; margin-bottom: 15px;"><i class="fas fa-user-plus"></i> Register Walk-in Patient</h3>
+            <form id="newPatientForm" onsubmit="handleRegisterPatient(event)">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Full Name</label>
+                    <input type="text" id="np_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Age</label>
+                        <input type="number" id="np_age" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 600;">Gender</label>
+                        <select id="np_gender" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Phone Number</label>
+                    <input type="text" id="np_phone" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Chief Complaints (Pradhana Vedana)</label>
+                    <textarea id="np_complaints" required style="width: 100%; height: 60px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px;">Add to OPD Queue</button>
+                    <button type="button" class="btn btn-outline" onclick="closeNewPatientModal()" style="padding: 12px 20px;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script>
+        let currentPatient = null;
+        const user = JSON.parse(localStorage.getItem('user')) || {
+            name: 'Dr. Rohan Patil',
+            role: 'Doctor'
+        };
+
+        document.getElementById('welcomeName').textContent = `Consultation Desk | ${user.name}`;
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userInitial').textContent = user.name.charAt(0);
+
+        function showTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (el) el.classList.add('active');
+
+            if (tabId === 'panchakarma') renderPanchakarma();
+            if (tabId === 'formulary') renderFormulary();
+            if (tabId === 'patients') renderPatientsList();
+        }
+
+        // Render OPD Queue
+        function loadQueue() {
+            const patients = api.getPatients();
+            const list = document.getElementById('queueList');
+            list.innerHTML = '';
+
+            let waiting = 0;
+            let completed = 0;
+
+            patients.forEach(pat => {
+                if (pat.status === 'Waiting') waiting++;
+                if (pat.status === 'Completed') completed++;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong style="color: #2d5a27;">#${pat.tokenNumber || '01'}</strong></td>
+                    <td><span style="font-weight: 600;">${pat.id}</span></td>
+                    <td>
+                        <strong>${pat.name}</strong><br>
+                        <span style="font-size: 0.8rem; color: #777;">${pat.age} yrs • ${pat.gender}</span>
+                    </td>
+                    <td>
+                        <span class="dosha-tag ${pat.dominantDosha === 'Vata' ? 'dosha-vata' : pat.dominantDosha === 'Pitta' ? 'dosha-pitta' : 'dosha-kapha'}">
+                            ${pat.prakriti || 'Vata-Pitta'}
+                        </span><br>
+                        <span style="font-size: 0.75rem; color: #888;">Agni: ${pat.agni || 'Vishamagni'}</span>
+                    </td>
+                    <td style="font-size: 0.85rem; max-width: 250px;">${pat.chiefComplaints || 'General checkup'}</td>
+                    <td>
+                        <span class="status-badge ${pat.status === 'Completed' ? 'status-completed' : 'status-scheduled'}">
+                            ${pat.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" onclick='openConsult(${JSON.stringify(pat)})' style="padding: 6px 14px; font-size: 0.8rem;">
+                            <i class="fas fa-stethoscope"></i> ${pat.status === 'Completed' ? 'Re-Examine' : 'Examine'}
+                        </button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+
+            document.getElementById('statWaiting').textContent = waiting;
+            document.getElementById('statCompleted').textContent = completed;
+            document.getElementById('statPanchakarma').textContent = api.getPanchakarmaSessions().length;
+        }
+
+        // Consultation Modal Logic
+        function openConsult(patient) {
+            currentPatient = patient;
+            document.getElementById('modalPatientName').textContent = patient.name;
+            document.getElementById('modalPatientId').textContent = `ID: ${patient.id} • Token #${patient.tokenNumber}`;
+            document.getElementById('modalPatientAge').textContent = `${patient.age} yrs / ${patient.gender}`;
+            document.getElementById('modalPatientPrakriti').textContent = patient.prakriti || 'Vata-Pitta';
+            document.getElementById('modalPatientAgni').textContent = patient.agni || 'Vishamagni';
+            document.getElementById('modalPatientPhone').textContent = patient.phone || 'N/A';
+            document.getElementById('modalPatientComplaints').textContent = patient.chiefComplaints || 'N/A';
+
+            // Reset medicines
+            const tbody = document.getElementById('medList');
+            tbody.innerHTML = '';
+            addMedRow('Yograj Guggulu', 'Vati', '2 tablets (500mg)', 'Adhobhakta (After meals)', 'Warm water', 14);
+            addMedRow('Maharasnadi Kwath', 'Kwatha', '20 ml with equal water', 'Pragbhakta (Before meals)', 'Warm water', 14);
+
+            document.getElementById('consultModal').style.display = 'flex';
+        }
+
+        function closeConsult() {
+            document.getElementById('consultModal').style.display = 'none';
+        }
+
+        function togglePanchakarmaForm() {
+            const isChecked = document.getElementById('prescribePanchakarmaToggle').checked;
+            document.getElementById('panchakarmaFormArea').style.display = isChecked ? 'grid' : 'none';
+        }
+
+        function addMedRow(name = '', form = 'Vati', dose = '', kala = 'Adhobhakta (After meals)', anupana = 'Warm water', days = 14) {
+            const tbody = document.getElementById('medList');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <select onchange="handleSelectMed(this)" style="font-weight:600;">
+                        <option value="">-- Choose Classical Medicine --</option>
+                        ${api.medicines.map(m => `<option value="${m.name}" ${m.name === name ? 'selected' : ''}>${m.name} (${m.form})</option>`).join('')}
+                    </select>
+                </td>
+                <td><input type="text" value="${form}" class="med-form"></td>
+                <td><input type="text" value="${dose}" class="med-dose" placeholder="e.g. 2 tabs"></td>
+                <td>
+                    <select class="med-kala">
+                        <option ${kala.includes('Pragbhakta') ? 'selected' : ''}>Pragbhakta (Before meals)</option>
+                        <option ${kala.includes('Madhyabhakta') ? 'selected' : ''}>Madhyabhakta (During meals)</option>
+                        <option ${kala.includes('Adhobhakta') ? 'selected' : ''}>Adhobhakta (After meals)</option>
+                        <option ${kala.includes('Nishi') ? 'selected' : ''}>Nishi (At bedtime)</option>
+                        <option ${kala.includes('Muhurmuhu') ? 'selected' : ''}>Muhurmuhu (Frequent intervals)</option>
+                    </select>
+                </td>
+                <td><input type="text" value="${anupana}" class="med-anupana" placeholder="Warm water / Honey"></td>
+                <td><input type="number" value="${days}" class="med-days" style="width: 60px;"></td>
+                <td style="text-align: center;"><button type="button" onclick="this.closest('tr').remove()" style="background:none; border:none; color:#e74c3c; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function handleSelectMed(selectEl) {
+            const found = api.medicines.find(m => m.name === selectEl.value);
+            if (found) {
+                const tr = selectEl.closest('tr');
+                tr.querySelector('.med-form').value = found.form;
+                tr.querySelector('.med-dose').value = found.defaultDose;
+                tr.querySelector('.med-anupana').value = found.anupana;
+            }
+        }
+
+        function collectConsultationData() {
+            const medRows = document.querySelectorAll('#medList tr');
+            const medicines = [];
+            medRows.forEach(row => {
+                const name = row.querySelector('select').value;
+                if (name) {
+                    medicines.push({
+                        name: name,
+                        form: row.querySelector('.med-form').value,
+                        dosage: row.querySelector('.med-dose').value,
+                        kala: row.querySelector('.med-kala').value,
+                        anupana: row.querySelector('.med-anupana').value,
+                        days: row.querySelector('.med-days').value
+                    });
+                }
+            });
+
+            let panchakarmaOrder = null;
+            if (document.getElementById('prescribePanchakarmaToggle').checked) {
+                panchakarmaOrder = {
+                    therapy: document.getElementById('pk_therapy').value,
+                    oil: document.getElementById('pk_oil').value,
+                    days: document.getElementById('pk_days').value,
+                    instructions: 'Standard clinical SOP'
+                };
+                api.addPanchakarmaSession({
+                    patientId: currentPatient.id,
+                    patientName: currentPatient.name,
+                    therapy: panchakarmaOrder.therapy,
+                    oilUsed: panchakarmaOrder.oil,
+                    daysTotal: parseInt(panchakarmaOrder.days),
+                    therapist: 'On-Duty Panchakarma Therapist'
+                });
+            }
+
+            return {
+                patientId: currentPatient.id,
+                patientName: currentPatient.name,
+                patientAge: currentPatient.age,
+                patientGender: currentPatient.gender,
+                doctorName: user.name,
+                prakriti: currentPatient.prakriti,
+                agni: document.getElementById('consultAgni').value,
+                symptoms: currentPatient.chiefComplaints,
+                diagnosis: document.getElementById('consultDiagnosis').value,
+                ashtavidha: {
+                    nadi: document.getElementById('p_nadi').value,
+                    mutra: document.getElementById('p_mutra').value,
+                    mala: document.getElementById('p_mala').value,
+                    jihva: document.getElementById('p_jihva').value,
+                    shabda: document.getElementById('p_shabda').value,
+                    sparsha: document.getElementById('p_sparsha').value,
+                    druk: document.getElementById('p_druk').value,
+                    aakriti: document.getElementById('p_aakriti').value
+                },
+                medicines: medicines,
+                panchakarmaOrder: panchakarmaOrder,
+                pathya: document.getElementById('consultPathya').value,
+                apathya: document.getElementById('consultApathya').value
+            };
+        }
+
+        function saveConsultationOnly() {
+            const consultData = collectConsultationData();
+            api.saveConsultation(consultData);
+            api.showToast('Clinical Consultation saved successfully!');
+            closeConsult();
+            loadQueue();
+        }
+
+        function saveAndPrintConsultation() {
+            const consultData = collectConsultationData();
+            api.saveConsultation(consultData);
+            api.showToast('Prescription saved! Generating print letterhead...');
+            closeConsult();
+            loadQueue();
+            api.printPrescription(consultData);
+        }
+
+        // Panchakarma Unit Render
+        function renderPanchakarma() {
+            const sessions = api.getPanchakarmaSessions();
+            const tbody = document.getElementById('panchakarmaTable');
+            tbody.innerHTML = '';
+
+            sessions.forEach(s => {
+                const pct = Math.round((s.daysCompleted / s.daysTotal) * 100);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${s.id}</strong></td>
+                    <td><strong>${s.patientName}</strong></td>
+                    <td>${s.therapy}</td>
+                    <td style="font-size: 0.85rem; color: #555;">${s.oilUsed}</td>
+                    <td>
+                        <span style="font-size: 0.82rem; font-weight: 600;">Day ${s.daysCompleted} of ${s.daysTotal} (${pct}%)</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                        </div>
+                    </td>
+                    <td>${s.therapist || 'Assigned'}</td>
+                    <td><span class="status-badge ${s.status === 'Completed' ? 'status-completed' : 'status-scheduled'}">${s.status}</span></td>
+                    <td>
+                        ${s.status !== 'Completed' ? `
+                            <button class="btn btn-outline" onclick="logPanchakarmaProgress('${s.id}')" style="padding: 4px 10px; font-size: 0.78rem;">
+                                <i class="fas fa-check"></i> Log Today
+                            </button>
+                        ` : `<span style="color:#27ae60; font-weight:bold; font-size:0.8rem;">Finished</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function logPanchakarmaProgress(id) {
+            api.updatePanchakarmaProgress(id);
+            api.showToast('Panchakarma session logged for today!');
+            renderPanchakarma();
+            loadQueue();
+        }
+
+        // Prakriti Calculator
+        function calcPrakriti() {
+            const answers = [
+                document.getElementById('prkFrame').value,
+                document.getElementById('prkSkin').value,
+                document.getElementById('prkDigestion').value,
+                document.getElementById('prkSleep').value
+            ];
+
+            let counts = { vata: 0, pitta: 0, kapha: 0 };
+            answers.forEach(a => counts[a]++);
+
+            let result = 'Vata-Pitta';
+            let advice = '';
+
+            if (counts.vata >= 2 && counts.pitta >= 1) {
+                result = 'Vata-Pitta Prakriti';
+                advice = 'High Vata and Pitta: Susceptible to joint pain, acidity, restlessness, and dry skin. Consume warm Snigdha foods, cow ghee, and avoid excessively sour or cold items.';
+            } else if (counts.pitta >= 2) {
+                result = 'Pitta-Pradhana Prakriti';
+                advice = 'Dominant Pitta: High metabolic rate, prone to inflammation, ulcers, and irritability. Prioritize cooling herbs (Amalaki, Chandana, Shatavari) and sweet/bitter tastes.';
+            } else if (counts.kapha >= 2) {
+                result = 'Kapha-Pradhana Prakriti';
+                advice = 'Dominant Kapha: Prone to congestion, sluggish digestion (Mandagni), and weight gain. Use pungent warming spices (Trikatu, Pippali) and dry massage (Udvartana).';
+            } else {
+                result = 'Sannipataja / Mishra Prakriti';
+                advice = 'Tridoshic balance requiring seasonal adaptation (Ritucharya) and balanced Ahara.';
+            }
+
+            document.getElementById('prakritiResultBadge').textContent = result;
+            document.getElementById('prakritiAdvice').textContent = advice;
+        }
+
+        // Formulary Render
+        function renderFormulary() {
+            const tbody = document.getElementById('formularyTable');
+            tbody.innerHTML = '';
+            api.medicines.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${m.name}</strong></td>
+                    <td><span class="dosha-tag dosha-vata">${m.form}</span></td>
+                    <td>${m.defaultDose}</td>
+                    <td>${m.kala}</td>
+                    <td><strong>${m.anupana}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Patient Database Render
+        function renderPatientsList() {
+            const patients = api.getPatients();
+            const tbody = document.getElementById('patientSearchList');
+            tbody.innerHTML = '';
+
+            patients.forEach(pat => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${pat.id}</strong></td>
+                    <td><strong>${pat.name}</strong></td>
+                    <td>${pat.age} yrs / ${pat.gender}</td>
+                    <td>${pat.phone}</td>
+                    <td><span class="dosha-tag dosha-vata">${pat.prakriti || 'Vata-Pitta'}</span></td>
+                    <td>${pat.agni || 'Vishamagni'} • ${pat.koshtha || 'Madhyama'}</td>
+                    <td>${pat.lastVisit}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick='openConsult(${JSON.stringify(pat)})' style="padding: 4px 10px; font-size: 0.78rem;">
+                            Examine
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterPatients() {
+            const q = document.getElementById('patientSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#patientSearchList tr');
+            rows.forEach(r => {
+                r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        // Walk-in Registration
+        function openNewPatientModal() {
+            document.getElementById('newPatientModal').style.display = 'flex';
+        }
+        function closeNewPatientModal() {
+            document.getElementById('newPatientModal').style.display = 'none';
+        }
+        function handleRegisterPatient(e) {
+            e.preventDefault();
+            const newPat = api.addPatient({
+                name: document.getElementById('np_name').value,
+                age: document.getElementById('np_age').value,
+                gender: document.getElementById('np_gender').value,
+                phone: document.getElementById('np_phone').value,
+                chiefComplaints: document.getElementById('np_complaints').value,
+                prakriti: 'Vata-Pitta',
+                dominantDosha: 'Vata',
+                agni: 'Vishamagni',
+                koshtha: 'Madhyama'
+            });
+            api.showToast(`Patient ${newPat.name} registered with Token #${newPat.tokenNumber}!`);
+            closeNewPatientModal();
+            loadQueue();
+            renderPatientsList();
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        // Initialize on load
+        loadQueue();
+    </script>
+</body>
+</html>

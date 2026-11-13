@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Admin & Reception | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f7f4;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 460px;
+            text-align: center;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .error-msg {
+            background: #ffe6e6;
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .quick-pill {
+            display: inline-block;
+            background: #e8f3e6;
+            color: #2d5a27;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid #c7e2c4;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header" style="margin-bottom: 25px;">
+                <div style="width: 70px; height: 70px; background: rgba(45, 90, 39, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fas fa-hospital-user" style="font-size: 2rem; color: var(--primary-color);"></i>
+                </div>
+                <h2>Hospital Admin & Reception Desk</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem;">OPD Queue, Walk-in Registrations & Panchakarma Management</p>
+            </div>
+
+            <div id="error-msg" class="error-msg"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Admin / Desk Email</label>
+                    <input type="email" id="email" value="rajesh@aarogya.com" placeholder="admin@aarogya.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" value="password123" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 600;">Access Reception & Admin Desk</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: left; background: #f8faf8; padding: 12px 15px; border-radius: 8px; border: 1px solid #e1ebe0;">
+                <span style="font-size: 0.8rem; font-weight: 600; color: #2d5a27;">⚡ Demo Admin Account:</span><br>
+                <span class="quick-pill" onclick="document.getElementById('email').value='rajesh@aarogya.com'; document.getElementById('password').value='password123';">
+                    Rajesh Kulkarni (Chief Admin)
+                </span>
+            </div>
+
+            <div class="auth-footer" style="margin-top: 20px;">
+                <a href="login.html" style="font-size: 0.85rem; color: var(--text-light);"><i class="fas fa-arrow-left"></i> Change Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const data = await api.request('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (data.role && data.role !== 'Admin') {
+                    errorMsg.textContent = 'This account does not have Admin access privileges.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify(data));
+                window.location.href = 'admin-dashboard.html';
+            } catch (err) {
+                errorMsg.textContent = err.message || 'Login failed. Please verify credentials.';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

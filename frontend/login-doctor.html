@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAMS Doctor Portal | AarogyaCare Hospital Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f7f4;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .error-msg {
+            background: #ffe6e6;
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .quick-accounts {
+            margin-top: 25px;
+            text-align: left;
+            background: #f8faf8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e1ebe0;
+        }
+        .quick-pill {
+            display: inline-block;
+            background: #e8f3e6;
+            color: #2d5a27;
+            padding: 5px 10px;
+            margin: 4px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            border: 1px solid #c7e2c4;
+            transition: all 0.2s;
+        }
+        .quick-pill:hover {
+            background: #2d5a27;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header" style="margin-bottom: 25px;">
+                <div style="width: 70px; height: 70px; background: rgba(45, 90, 39, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fas fa-stethoscope" style="font-size: 2rem; color: var(--primary-color);"></i>
+                </div>
+                <h2>BAMS Doctor Portal</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem;">Ayurvedic Clinical Consultations & Practice Management</p>
+            </div>
+
+            <div id="error-msg" class="error-msg"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Doctor's Email</label>
+                    <input type="email" id="email" value="rohan@aarogya.com" placeholder="doctor@aarogya.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" value="password123" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 600;">Log In to Consultation Desk</button>
+            </form>
+
+            <div class="quick-accounts">
+                <p style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: #2d5a27;">
+                    ⚡ Quick Demo Accounts (Click to Fill):
+                </p>
+                <span class="quick-pill" onclick="fillDoctor('rohan@aarogya.com')">Dr. Rohan Patil (Medicine)</span>
+                <span class="quick-pill" onclick="fillDoctor('amit@aarogya.com')">Dr. Amit Deshmukh (Panchakarma)</span>
+                <span class="quick-pill" onclick="fillDoctor('sneha@aarogya.com')">Dr. Sneha Kulkarni (Surgery)</span>
+            </div>
+
+            <div class="auth-footer" style="margin-top: 20px;">
+                <a href="login.html" style="font-size: 0.85rem; color: var(--text-light);"><i class="fas fa-arrow-left"></i> Change Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        function fillDoctor(email) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = 'password123';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const data = await api.request('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (data.role && data.role !== 'Doctor') {
+                    errorMsg.textContent = 'This account is not designated as a Doctor account.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify(data));
+                window.location.href = 'doctor-dashboard.html';
+            } catch (err) {
+                errorMsg.textContent = err.message || 'Login failed. Please verify credentials.';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

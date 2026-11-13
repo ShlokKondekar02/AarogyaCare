@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Admin & Reception Desk | AarogyaCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .token-card {
+            background: #f8faf8;
+            border: 2px dashed #2d5a27;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i> Aarogya<span>Care</span>
+            </a>
+            <div style="padding: 0 15px 15px 15px;">
+                <span style="background: rgba(255,255,255,0.15); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold;">
+                    <i class="fas fa-hospital-alt"></i> Reception & Admin
+                </span>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" onclick="showTab('analytics', this)"><i class="fas fa-chart-line"></i> <span>Analytics</span></a>
+                <a href="#" class="menu-item" onclick="showTab('reception', this)"><i class="fas fa-ticket-alt"></i> <span>OPD Registration</span></a>
+                <a href="#" class="menu-item" onclick="showTab('doctors', this)"><i class="fas fa-user-md"></i> <span>Doctors Directory</span></a>
+                <a href="#" class="menu-item" onclick="showTab('pharmacy', this)"><i class="fas fa-boxes"></i> <span>Herbal Inventory</span></a>
+                <a href="doctor-dashboard.html" class="menu-item"><i class="fas fa-stethoscope"></i> <span>Doctor Portal View</span></a>
+                <a href="#" id="logoutBtn" class="menu-item" style="margin-top: auto; color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="dash-header">
+                <div>
+                    <h2>Hospital Administration & Reception Desk</h2>
+                    <p style="color: var(--text-light); font-size: 0.9rem;">Real-time hospital performance, OPD admissions & Ayurvedic statistics</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-img" style="background: #2d5a27;">A</div>
+                    <div>
+                        <strong>Rajesh Kulkarni</strong>
+                        <p style="font-size: 0.8rem; color: var(--text-light);">Chief Hospital Administrator</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: Analytics -->
+            <div id="analytics" class="tab-content active">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-user-injured"></i></div>
+                        <div class="stat-info">
+                            <h3 id="admTotalPatients">1,280</h3>
+                            <p>Registered Patients</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-info">
+                            <h3 id="admTodayQueue">4</h3>
+                            <p>Today's OPD Queue</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold"><i class="fas fa-spa"></i></div>
+                        <div class="stat-info">
+                            <h3 id="admPanchakarma">3</h3>
+                            <p>Active Panchakarma</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(155, 89, 182, 0.1); color: #9b59b6;"><i class="fas fa-rupee-sign"></i></div>
+                        <div class="stat-info">
+                            <h3>₹4.8 Lakhs</h3>
+                            <p>Monthly Revenue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div class="data-card">
+                        <h3><i class="fas fa-chart-area"></i> Monthly Patient Footfall Trends</h3>
+                        <canvas id="appointmentChart" height="130"></canvas>
+                    </div>
+                    <div class="data-card">
+                        <h3><i class="fas fa-chart-pie"></i> Treated Ayurvedic Rogas (Disorders)</h3>
+                        <canvas id="deptChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="data-card">
+                        <h3><i class="fas fa-user-md"></i> Doctor Consultation Volume</h3>
+                        <canvas id="performanceChart" height="180"></canvas>
+                    </div>
+                    <div class="data-card">
+                        <h3><i class="fas fa-coins"></i> Revenue by Department</h3>
+                        <canvas id="revenueChart" height="180"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: OPD Registration -->
+            <div id="reception" class="tab-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="data-card">
+                        <h3><i class="fas fa-user-plus" style="color: var(--primary-color);"></i> Walk-In Patient Registration</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px;">Generate OPD token and assign to consulting Vaidya</p>
+
+                        <form id="admPatientForm" onsubmit="handleAdminRegisterPatient(event)">
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label style="font-size: 0.85rem; font-weight: 600;">Patient Full Name</label>
+                                <input type="text" id="adm_np_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 600;">Age</label>
+                                    <input type="number" id="adm_np_age" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 600;">Gender</label>
+                                    <select id="adm_np_gender" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label style="font-size: 0.85rem; font-weight: 600;">Contact Phone</label>
+                                <input type="text" id="adm_np_phone" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label style="font-size: 0.85rem; font-weight: 600;">Assign Consulting Doctor</label>
+                                <select id="adm_assign_doc" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                                    <option>Dr. Rohan Patil (Kayachikitsa / General Medicine)</option>
+                                    <option>Dr. Amit Deshmukh (Panchakarma Specialist)</option>
+                                    <option>Dr. Sneha Kulkarni (Shalya Tantra / Surgery)</option>
+                                    <option>Dr. Priya Joshi (Prasuti & Stri Roga)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-size: 0.85rem; font-weight: 600;">Chief Complaints</label>
+                                <textarea id="adm_np_complaints" required style="width: 100%; height: 60px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" placeholder="Symptoms, duration..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 600;">
+                                <i class="fas fa-ticket-alt"></i> Issue OPD Token & Add to Queue
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="data-card">
+                        <h3><i class="fas fa-id-badge" style="color: var(--primary-color);"></i> Latest Generated Token Slip</h3>
+                        <div id="latestTokenCard" class="token-card">
+                            <span style="font-size: 0.85rem; color: #666; text-transform: uppercase;">AarogyaCare Hospital OPD Slip</span>
+                            <h1 id="tokenDisplayNumber" style="font-size: 3.5rem; color: #2d5a27; margin: 10px 0;">#04</h1>
+                            <h3 id="tokenDisplayName" style="margin: 0; color: #2c3e50;">Neha Shinde</h3>
+                            <p id="tokenDisplayMeta" style="color: #666; font-size: 0.85rem; margin: 6px 0;">Age: 31 yrs / Female • ID: AC-104</p>
+                            <p style="font-size: 0.85rem; color: #2d5a27; font-weight: 600; margin: 10px 0;">Room 02 • Dr. Rohan Patil</p>
+                            <button onclick="window.print()" class="btn btn-outline" style="margin-top: 10px; padding: 6px 16px; font-size: 0.8rem;"><i class="fas fa-print"></i> Print Token</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Doctors Directory -->
+            <div id="doctors" class="tab-content">
+                <div class="data-card">
+                    <h3><i class="fas fa-user-md" style="color: var(--primary-color);"></i> BAMS Medical Faculty & Staff</h3>
+                    <table class="data-table" style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Doctor Name</th>
+                                <th>Department & Specialization</th>
+                                <th>Qualifications</th>
+                                <th>Consultation Fee</th>
+                                <th>OPD Timings</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Dr. Rohan Patil</strong></td>
+                                <td>Kayachikitsa (Internal Medicine)</td>
+                                <td>BAMS, MD (Ayu)</td>
+                                <td>₹500</td>
+                                <td>09:00 AM - 01:00 PM</td>
+                                <td><span class="status-badge status-completed">Active on Duty</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dr. Amit Deshmukh</strong></td>
+                                <td>Panchakarma Department</td>
+                                <td>BAMS, MD (Panchakarma)</td>
+                                <td>₹700</td>
+                                <td>10:00 AM - 04:00 PM</td>
+                                <td><span class="status-badge status-completed">Active on Duty</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dr. Sneha Kulkarni</strong></td>
+                                <td>Shalya Tantra (Surgical / Kshar Sutra)</td>
+                                <td>BAMS, MS (Shalya)</td>
+                                <td>₹600</td>
+                                <td>02:00 PM - 06:00 PM</td>
+                                <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dr. Priya Joshi</strong></td>
+                                <td>Prasuti & Stri Roga (Gynaecology)</td>
+                                <td>BAMS, MD (Prasuti)</td>
+                                <td>₹550</td>
+                                <td>09:00 AM - 02:00 PM</td>
+                                <td><span class="status-badge status-completed">Active on Duty</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: Pharmacy Inventory -->
+            <div id="pharmacy" class="tab-content">
+                <div class="data-card">
+                    <h3><i class="fas fa-mortar-pestle" style="color: var(--primary-color);"></i> Herbal Drug & Pharmacy Stock</h3>
+                    <table class="data-table" style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Medicine Name</th>
+                                <th>Category</th>
+                                <th>Available Stock</th>
+                                <th>Batch No.</th>
+                                <th>Unit Price</th>
+                                <th>Stock Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Yograj Guggulu (500mg)</strong></td>
+                                <td>Vati / Classical Guggulu</td>
+                                <td>140 Bottles (60 tabs)</td>
+                                <td>YG-2026-09</td>
+                                <td>₹280</td>
+                                <td><span class="status-badge status-completed">Adequate</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maharasnadi Kwath (450ml)</strong></td>
+                                <td>Liquid Kwatha</td>
+                                <td>85 Bottles</td>
+                                <td>MK-2026-04</td>
+                                <td>₹240</td>
+                                <td><span class="status-badge status-completed">Adequate</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Triphala Churna (100g)</strong></td>
+                                <td>Herbal Powder</td>
+                                <td>220 Packs</td>
+                                <td>TC-2026-11</td>
+                                <td>₹110</td>
+                                <td><span class="status-badge status-completed">Adequate</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mahanarayan Taila (200ml)</strong></td>
+                                <td>Medicated Taila</td>
+                                <td>18 Bottles</td>
+                                <td>MT-2026-02</td>
+                                <td>₹350</td>
+                                <td><span class="status-badge status-scheduled" style="background:#fff3cd; color:#856404;">Reorder Soon</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        function showTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (el) el.classList.add('active');
+        }
+
+        function updateAdminStats() {
+            const patients = api.getPatients();
+            const panchakarma = api.getPanchakarmaSessions();
+            document.getElementById('admTodayQueue').textContent = patients.filter(p => p.status === 'Waiting').length;
+            document.getElementById('admPanchakarma').textContent = panchakarma.length;
+        }
+        updateAdminStats();
+
+        function handleAdminRegisterPatient(e) {
+            e.preventDefault();
+            const newPat = api.addPatient({
+                name: document.getElementById('adm_np_name').value,
+                age: document.getElementById('adm_np_age').value,
+                gender: document.getElementById('adm_np_gender').value,
+                phone: document.getElementById('adm_np_phone').value,
+                chiefComplaints: document.getElementById('adm_np_complaints').value,
+                prakriti: 'Vata-Pitta',
+                dominantDosha: 'Vata',
+                agni: 'Vishamagni',
+                koshtha: 'Madhyama'
+            });
+
+            document.getElementById('tokenDisplayNumber').textContent = `#${newPat.tokenNumber}`;
+            document.getElementById('tokenDisplayName').textContent = newPat.name;
+            document.getElementById('tokenDisplayMeta').textContent = `Age: ${newPat.age} yrs / ${newPat.gender} • ID: ${newPat.id}`;
+            api.showToast(`Token #${newPat.tokenNumber} generated for ${newPat.name}!`);
+            updateAdminStats();
+            document.getElementById('admPatientForm').reset();
+        }
+
+        // Charts initialization
+        const ctxAppt = document.getElementById('appointmentChart').getContext('2d');
+        new Chart(ctxAppt, {
+            type: 'line',
+            data: {
+                labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                datasets: [{
+                    label: 'OPD Patients',
+                    data: [140, 185, 210, 245, 290, 320],
+                    borderColor: '#2d5a27',
+                    backgroundColor: 'rgba(45, 90, 39, 0.1)',
+                    fill: true,
+                    tension: 0.35
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        const ctxDept = document.getElementById('deptChart').getContext('2d');
+        new Chart(ctxDept, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sandhivata (Joint Pain)', 'Amlapitta (Hyperacidity)', 'Panchakarma Detox', 'Skin / Kushtha', 'Pratishyaya (Sinusitis)'],
+                datasets: [{
+                    data: [35, 25, 20, 12, 8],
+                    backgroundColor: ['#2d5a27', '#c5a059', '#27ae60', '#e67e22', '#2980b9']
+                }]
+            }
+        });
+
+        const ctxPerf = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctxPerf, {
+            type: 'bar',
+            data: {
+                labels: ['Dr. Rohan Patil', 'Dr. Amit Deshmukh', 'Dr. Sneha Kulkarni', 'Dr. Priya Joshi'],
+                datasets: [{
+                    label: 'Monthly Consultations',
+                    data: [165, 140, 95, 110],
+                    backgroundColor: '#c5a059'
+                }]
+            }
+        });
+
+        const ctxRev = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctxRev, {
+            type: 'pie',
+            data: {
+                labels: ['OPD Consultations', 'Panchakarma Therapies', 'Herbal Pharmacy'],
+                datasets: [{
+                    data: [210000, 185000, 85000],
+                    backgroundColor: ['#2d5a27', '#27ae60', '#c5a059']
+                }]
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
