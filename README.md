@@ -104,49 +104,51 @@ Standardized digital capture of the 8 diagnostic pillars:
 
 ```text
 AarogyaCare/
-├── package.json                         # Root monorepo workspace scripts
+├── README.md                            # Comprehensive Major Project Documentation
+├── package.json                         # Root Monorepo Workspace configuration & task runner
+├── package-lock.json                    # Lockfile for root monorepo
+├── .gitignore                           # Git ignore rules for node_modules, build artifacts, env
+├── .gitattributes                       # Line ending and repository attributes
 │
-└── AarogyaCare-main/
-    ├── package.json                     # Monorepo task runner
-    ├── .gitignore                       # Git exclusion rules
-    │
-    ├── backend/                         # Express.js REST API service
-    │   ├── config/
-    │   │   └── db.js                    # Firebase Admin Firestore connection & fallback
-    │   ├── controllers/
-    │   │   ├── appointmentController.js # OPD token queue & appointment handling
-    │   │   ├── authController.js        # User authentication & JWT issuance
-    │   │   ├── doctorController.js      # Vaidya profiles & rosters
-    │   │   ├── patientController.js     # Patient clinical records
-    │   │   └── prescriptionController.js# Prescription saving & retrieval
-    │   ├── middleware/
-    │   │   ├── authMiddleware.js        # JWT bearer authentication guard
-    │   │   ├── roleMiddleware.js        # Role-based access control (Doctor / Admin)
-    │   │   └── uploadMiddleware.js      # Multer file storage handler
-    │   ├── routes/                      # Express route endpoints
-    │   ├── seeder.js                    # Database seed script for initial demo data
-    │   ├── server.js                    # Main server entry point & CORS configuration
-    │   ├── .env.example                 # Environment variables blueprint
-    │   └── package.json                 # Backend dependencies
-    │
-    └── frontend/                        # Vite Multi-Page Frontend Application
-        ├── css/
-        │   ├── dashboard.css            # Clinical control panel styling
-        │   └── style.css                # Base design system & layout tokens
-        ├── js/
-        │   └── api.js                   # Unified clinical API client & offline fallback store
-        ├── public/
-        │   └── js/api.js                # Public asset bundle of the clinical API engine
-        ├── images/                      # Clinical illustrations and banners
-        ├── index.html                   # Hospital public landing page
-        ├── login.html                   # Role selection portal
-        ├── login-doctor.html            # BAMS Vaidya authentication portal
-        ├── login-admin.html             # Reception & Hospital Administrator portal
-        ├── login-patient.html           # Patient portal advisory & redirect notice
-        ├── doctor-dashboard.html        # Comprehensive Doctor consultation suite
-        ├── admin-dashboard.html         # OPD reception, token desk & analytics
-        ├── vite.config.js               # Multi-page build resolution config
-        └── package.json                 # Frontend dependencies
+├── backend/                             # Express.js REST API service
+│   ├── config/
+│   │   └── db.js                        # Firebase Admin Firestore connection & local fallback
+│   ├── controllers/
+│   │   ├── appointmentController.js     # OPD token queue & appointment handling
+│   │   ├── authController.js            # User authentication & JWT issuance
+│   │   ├── doctorController.js          # Vaidya profiles & rosters
+│   │   ├── patientController.js         # Patient clinical records
+│   │   └── prescriptionController.js    # Prescription saving & retrieval
+│   ├── middleware/
+│   │   ├── authMiddleware.js            # JWT bearer authentication guard
+│   │   ├── roleMiddleware.js            # Role-based access control (Doctor / Admin)
+│   │   └── uploadMiddleware.js          # Multer file storage handler
+│   ├── routes/                          # Express route endpoints
+│   ├── seeder.js                        # Database seed script for initial demo data
+│   ├── server.js                        # Main server entry point & CORS configuration
+│   ├── .env.example                     # Environment variables blueprint
+│   └── package.json                     # Backend dependencies
+│
+├── frontend/                            # Vite Multi-Page Frontend Application
+│   ├── css/
+│   │   ├── dashboard.css                # Clinical control panel styling
+│   │   └── style.css                    # Base design system & layout tokens
+│   ├── js/
+│   │   └── api.js                       # Unified clinical API client & offline fallback store
+│   ├── public/
+│   │   └── js/api.js                    # Public asset bundle of the clinical API engine
+│   ├── images/                          # Clinical illustrations and banners
+│   ├── index.html                       # Hospital public landing page
+│   ├── login.html                       # Role selection portal
+│   ├── login-doctor.html                # BAMS Vaidya authentication portal
+│   ├── login-admin.html                 # Reception & Hospital Administrator portal
+│   ├── login-patient.html               # Patient portal advisory & redirect notice
+│   ├── doctor-dashboard.html            # Comprehensive Doctor consultation suite
+│   ├── admin-dashboard.html             # OPD reception, token desk & analytics
+│   ├── vite.config.js                   # Multi-page build resolution config
+│   └── package.json                     # Frontend dependencies
+│
+└── docs/                                # Project documentation assets & GitHub Pages preview
 ```
 
 ---
@@ -160,7 +162,7 @@ AarogyaCare/
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/ShlokKondekar02/AarogyaCare.git
-cd AarogyaCare/AarogyaCare-main
+cd AarogyaCare
 ```
 
 ### 2. Install Dependencies
@@ -179,7 +181,7 @@ cd ..
 ```
 
 ### 3. Configure Environment Variables
-In `AarogyaCare-main/backend/`, copy `.env.example` to `.env`:
+In the `backend/` directory, copy `.env.example` to `.env`:
 ```bash
 cp backend/.env.example backend/.env
 ```
